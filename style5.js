@@ -1,0 +1,133 @@
+/*/connect with lines*/
+
+const canvas = document.getElementById("in")
+const ctx = canvas.getContext('2d')
+console.dir(ctx)
+//adjusting canvas
+canvas.width = window.innerWidth
+canvas.height = window.innerHeight
+window.addEventListener('resize', function () {
+    canvas.width = window.innerWidth
+    canvas.height = window.innerHeight
+})
+
+
+
+//click:: and update mouse pointer 
+const mause={
+    x:undefined,
+    y:undefined
+}
+
+canvas.addEventListener('mousemove', function(e){
+    console.log(e.x,e.y)
+    mause.x=e.x
+    mause.y=e.y+10
+    j=Math.random()*5+1
+    for(let i=0;i<j;i++){
+        particlesArray.push(new Particle())
+    }
+})
+canvas.addEventListener('click', function(e){
+    console.log(e.x,e.y)
+    mause.x=e.x
+    mause.y=e.y+10
+    j=Math.random()*10+1
+    for(let i=0;i<j;i++){
+        particlesArray.push(new Particle())
+    }
+})
+
+let particlesArray=[]
+let hue=0
+////////class Defining a particle
+
+//particles have differnt location and differnt speed and size
+class Particle {
+    constructor(p,q) {
+        this.x=mause.x
+        this.y=mause.y
+       // this.x = Math.random()*canvas.width
+       // this.y = Math.random()*canvas.height
+       this.color=`hsl(${hue},100%,50%)`
+        this.size = Math.random() 
+        this.speedX = Math.random() * 3 - 1.5
+        this.speedY = Math.random() * 3 - 1.5
+    }
+    //change location to another
+    update() {
+        
+        this.x += this.speedX
+        this.y += this.speedY
+        if(this.size>0.2)
+        this.size=this.size-0.001
+
+    }
+    /////drawing each particle
+    drawCircle() {
+        ///////drawing
+        ctx.beginPath()
+        
+        //(x,y,r,sAngle,eAngle,counterclockwise)
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2)
+        ///////fill
+        ctx.fillStyle = this.color
+        ctx.fill()
+        ///////outline
+        //ctx.strokeStyle = 'white'
+       /// ctx.stroke()
+    }
+    drawlines(){
+
+    }
+}
+///////create particles
+function init(){
+    for(let i=0;i<100;i++){
+        particlesArray.push(new Particle())
+    }
+}
+//init()
+
+function handleParticles(){
+    for(let i=0;i<particlesArray.length;i++){
+        particlesArray[i].update()
+        particlesArray[i].drawCircle()
+        for(let j=i;j<particlesArray.length;j++){
+            const dx=particlesArray[i].x-particlesArray[j].x
+            const dy=particlesArray[i].y-particlesArray[j].y
+            const dist=Math.sqrt((dy*dy)+(dx*dx))
+            if(dist<100)
+            {
+                ctx.beginPath()
+                ctx.strokeStyle=particlesArray[i].color
+                ctx.lineWidth=0.02
+                ctx.moveTo(particlesArray[i].x,particlesArray[i].y)
+                ctx.lineTo(particlesArray[j].x,particlesArray[j].y)
+                ctx.stroke()
+                
+            } 
+        }
+        if(particlesArray[i].size<=0.2)
+            {
+                particlesArray.splice(i,1)
+                i--
+            }
+        
+    }
+}
+
+////infinite recurssion causing animation
+function animate() {
+    //reduced opacity of previous canvous 
+   // ctx.clearRect(0,0,canvas.width,canvas.height)
+   ctx.fillStyle='rgba(0,0,0,0.08)'
+    hue++
+   ctx.fillRect(0,0,canvas.width,canvas.height)
+    //agin chnaged position
+    handleParticles()
+    
+    //return
+    requestAnimationFrame(animate)
+}
+animate()
